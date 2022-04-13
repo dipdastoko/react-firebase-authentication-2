@@ -12,6 +12,7 @@ initializeAuthentication();
 function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const auth = getAuth();
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, googleProvider)
@@ -28,13 +29,26 @@ function App() {
     setPassword(e.target.value);
   }
   const handleRegistration = e => {
+    e.preventDefault();
     console.log(email, password);
+    if (password.length < 6) {
+      setError('Password must be at least 6 character long');
+      return;
+    }
+    if (!/(?=.*[A-Z].*[A-Z])/.test(password)) {
+      setError('Password must contain two upper case');
+      return;
+    }
     createUserWithEmailAndPassword(auth, email, password)
       .then(result => {
         const user = result.user;
         console.log(user);
+        setError('');
       })
-    e.preventDefault();
+      .catch(error => {
+        console.log(error.message);
+      })
+
   }
   return (
     <div className="mx-5">
@@ -63,6 +77,7 @@ function App() {
             </div>
           </div>
         </div>
+        <div className="row mb-3 text-danger">{error}</div>
         <button type="submit" className="btn btn-primary">Sign in</button>
       </form>
       <br /><br /><br />
