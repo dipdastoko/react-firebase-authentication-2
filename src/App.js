@@ -1,7 +1,7 @@
 
 import './App.css';
 import initializeAuthentication from './Firebase/firebase.initialize';
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from 'react';
 
 const googleProvider = new GoogleAuthProvider();
@@ -13,6 +13,7 @@ function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLogin, setIsLogin] = useState(false);
   const auth = getAuth();
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, googleProvider)
@@ -21,6 +22,9 @@ function App() {
         console.log(user);
       })
 
+  }
+  const toggleLogin = e => {
+    setIsLogin(e.target.checked);
   }
   const handleEmailChange = e => {
     setEmail(e.target.value);
@@ -39,6 +43,20 @@ function App() {
       setError('Password must contain two upper case');
       return;
     }
+
+    isLogin ? processLogin(email, password) : registerNewUser(email, password);
+  }
+  const processLogin = (email, password) => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then(result => {
+        const user = result.user;
+        console.log(user);
+      })
+      .catch(error => {
+        console.log(error.message);
+      })
+  }
+  const registerNewUser = (email, password) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then(result => {
         const user = result.user;
@@ -48,12 +66,11 @@ function App() {
       .catch(error => {
         console.log(error.message);
       })
-
   }
   return (
     <div className="mx-5">
       <form onSubmit={handleRegistration}>
-        <h3 className='text-primary'>Please Rgister</h3>
+        <h3 className='text-primary'>Please {isLogin ? 'Login' : 'Register'}</h3>
         <div className="row mb-3">
           <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">Email</label>
           <div className="col-sm-10">
@@ -70,15 +87,15 @@ function App() {
         <div className="row mb-3">
           <div className="col-sm-10 offset-sm-2">
             <div className="form-check">
-              <input className="form-check-input" type="checkbox" id="gridCheck1" />
+              <input onChange={toggleLogin} className="form-check-input" type="checkbox" id="gridCheck1" />
               <label className="form-check-label" htmlFor="gridCheck1">
-                Example checkbox
+                Already Rgistered?
               </label>
             </div>
           </div>
         </div>
         <div className="row mb-3 text-danger">{error}</div>
-        <button type="submit" className="btn btn-primary">Sign in</button>
+        <button type="submit" className="btn btn-primary">{isLogin ? 'Login' : 'Sign Up'}</button>
       </form>
       <br /><br /><br />
       <div>-----------------------------------------</div>
