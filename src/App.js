@@ -1,7 +1,7 @@
 
 import './App.css';
 import initializeAuthentication from './Firebase/firebase.initialize';
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, updateProfile } from "firebase/auth";
 import { useState } from 'react';
 
 const googleProvider = new GoogleAuthProvider();
@@ -14,6 +14,7 @@ function App() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLogin, setIsLogin] = useState(false);
+  const [name, setName] = useState('');
   const auth = getAuth();
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, googleProvider)
@@ -28,6 +29,9 @@ function App() {
   }
   const handleEmailChange = e => {
     setEmail(e.target.value);
+  }
+  const handleNameChange = e => {
+    setName(e.target.value);
   }
   const handlePasswordChange = e => {
     setPassword(e.target.value);
@@ -64,9 +68,18 @@ function App() {
         console.log(user);
         setError('');
         verifyEmail();
+        setUserName();
       })
       .catch(error => {
         setError(error.message);
+      })
+  }
+  const setUserName = () => {
+    updateProfile(auth.currentUser, {
+      displayName: name
+    })
+      .then(result => {
+
       })
   }
 
@@ -87,6 +100,14 @@ function App() {
     <div className="mx-5">
       <form onSubmit={handleRegistration}>
         <h3 className='text-primary'>Please {isLogin ? 'Login' : 'Register'}</h3>
+
+        {!isLogin && <div className="row mb-3">
+          <label htmlFor="inputName" className="col-sm-2 col-form-label">Name</label>
+          <div className="col-sm-10">
+            <input onBlur={handleNameChange} type="text" className="form-control" id="inputName" placeholder='Your Name' required />
+          </div>
+        </div>}
+
         <div className="row mb-3">
           <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">Email</label>
           <div className="col-sm-10">
